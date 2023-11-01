@@ -5,8 +5,23 @@ from datetime import datetime
 from datasets import load_dataset
 from peft import prepare_model_for_kbit_training, LoraConfig, get_peft_model
 
+
+def formatting_func(example):
+    text = f"###Human:\nYou are an AI assistant who is good at chitchat. You have engaged on a conversation with an user. You have a Persona and a Memory. Your Memory comprises of two previous Conversations you had with the user. Generate assistant response to the user in the Current Conversation. Take into consideration assistant Persona, user Persona and Memory.\n\n{example['input']}\n\n###Assistant:\n{example['output']}"
+    return text
+
+def generate_and_tokenize_prompt(prompt):
+    result = tokenizer(
+        formatting_func(prompt),
+    )
+    result["labels"] = result["input_ids"].copy()
+    return result
+
+
 train_dataset = load_dataset('json', data_files='/kaggle/working/training_dataset.jsonl' , split='train')
-train_dataset
+
+
+
 base_model_id = "mistralai/Mistral-7B-v0.1"
 bnb_config = BitsAndBytesConfig(
     load_in_4bit=True,
@@ -16,6 +31,7 @@ bnb_config = BitsAndBytesConfig(
 )
 
 model = AutoModelForCausalLM.from_pretrained(base_model_id, quantization_config=bnb_config)
+
 tokenizer = AutoTokenizer.from_pretrained(
     base_model_id,
     padding_side="left",
@@ -24,11 +40,8 @@ tokenizer = AutoTokenizer.from_pretrained(
 )
 tokenizer.pad_token = tokenizer.eos_token
 
-# Assuming you have `train_dataset` defined somewhere
-def generate_and_tokenize_prompt(prompt):
-    return tokenizer(prompt, padding=True, truncation=True, max_length=512)
-
 tokenized_train_dataset = train_dataset.map(generate_and_tokenize_prompt)
+
 
 model.gradient_checkpointing_enable()
 model = prepare_model_for_kbit_training(model)
