@@ -10,9 +10,12 @@ def formatting_func(example):
     text = f"###Human:\nYou are an AI assistant who is good at chitchat. You have engaged on a conversation with an user. You have a Persona and a Memory. Your Memory comprises of two previous Conversations you had with the user. Generate assistant response to the user in the Current Conversation. Take into consideration assistant Persona, user Persona and Memory.\n\n{example['input']}\n\n###Assistant:\n{example['output']}"
     return text
 
-def generate_and_tokenize_prompt(prompt):
+def generate_and_tokenize_prompt2(prompt):
     result = tokenizer(
         formatting_func(prompt),
+        truncation=True,
+
+        padding=True,
     )
     result["labels"] = result["input_ids"].copy()
     return result
