@@ -73,3 +73,4 @@ win32-setctime==1.1.0 ; python_version >= "3.9" and python_version < "3.13" and 
 wrapt==1.15.0 ; python_version >= "3.9" and python_version < "3.13"
 xxhash==3.3.0 ; python_version >= "3.9" and python_version < "3.13"
 yarl==1.9.2 ; python_version >= "3.9" and python_version < "3.13"
+flask
